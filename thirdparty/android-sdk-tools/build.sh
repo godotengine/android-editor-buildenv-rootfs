@@ -1,6 +1,7 @@
 #!/bin/bash
 
 BUILD_TOOLS_VERSION="${BUILD_TOOLS_VERSION:-35.0.2}"
+TARGET_ARCH="${TARGET_ARCH:-arm64-v8a}"
 
 if [ -z "$ANDROID_NDK_ROOT" ]; then
 	echo "ERROR: The ANDROID_NDK_ROOT environment variable must be defined" > /dev/stderr
@@ -10,7 +11,7 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="$SCRIPT_DIR/android-sdk-tools-source"
 BUILD_DIR="$SCRIPT_DIR/build"
-OUTPUT_DIR="$SCRIPT_DIR/../../docker/android-sdk-tools/build-tools"
+OUTPUT_DIR="$SCRIPT_DIR/../../docker/android-sdk-tools/$TARGET_ARCH/build-tools"
 
 function die() {
     echo "$@" > /dev/stderr
@@ -51,9 +52,9 @@ popd >/dev/null
 ANDROID_TARGETS="aapt aapt2 aidl dexdump split-select zipalign"
 for target in $ANDROID_TARGETS; do
 	echo "Target: $target"
-	python build.py --ndk="$ANDROID_NDK_ROOT" --abi=arm64-v8a --build="$BUILD_DIR/arm64-v8a" --protoc="$SOURCE_DIR/$PROTOBUF_BUILD_DIR/protoc" --target=$target \
+	python build.py --ndk="$ANDROID_NDK_ROOT" --abi=$TARGET_ARCH --build="$BUILD_DIR/$TARGET_ARCH" --protoc="$SOURCE_DIR/$PROTOBUF_BUILD_DIR/protoc" --target=$target \
 		|| die "Failed building $target"
-	if ! [ -f "$BUILD_DIR/arm64-v8a/bin/build-tools/$target" ]; then
+	if ! [ -f "$BUILD_DIR/$TARGET_ARCH/bin/build-tools/$target" ]; then
 		die "Cannot find '$target' - it probably failed to build"
 	fi
 done
@@ -61,6 +62,6 @@ done
 # Copy the build tools into place.
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
-cp -r "$BUILD_DIR/arm64-v8a/bin/build-tools" "$OUTPUT_DIR" \
+cp -r "$BUILD_DIR/$TARGET_ARCH/bin/build-tools" "$OUTPUT_DIR" \
 	|| die "Unable to copy built build-tools into place"
 

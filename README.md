@@ -48,6 +48,17 @@ You can open a shell in the rootfs via Docker by running:
 
 The rootfs archive will be placed under `./docker/build/`
 
+Building for other architectures
+--------------------------------
+
+By default, all the scripts above will target arm64-v8, however, you can set the `TARGET_ARCH`
+variable to target other architectures.
+
+The currently supported architectures include:
+
+- `arm64-v8a`
+- `x86_64`
+
 Troubleshooting
 ---------------
 

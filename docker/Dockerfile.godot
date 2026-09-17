@@ -1,17 +1,20 @@
 ARG JDK_VERSION
 ARG TARGET_SDK
+ARG TARGET_ARCH
 
-FROM alvrme/alpine-android:android-${TARGET_SDK}-jdk${JDK_VERSION}
+FROM alvrme/alpine-android:android-${TARGET_SDK}-jdk${JDK_VERSION}-${TARGET_ARCH}
 
 ARG BUILD_TOOLS
 ARG TARGET_SDK
+ARG TARGET_ARCH
 
 RUN apk add tzdata \
  && mkdir /alt-tmp \
  && chmod 777 /alt-tmp
 
-# Install the arm64 build of the Android build tools.
-COPY android-sdk-tools/build-tools /opt/sdk/build-tools/$BUILD_TOOLS/
+# Install our own build of the Android build tools, since Google only ships them
+# for glibc on x86_64.
+COPY android-sdk-tools/$TARGET_ARCH/build-tools /opt/sdk/build-tools/$BUILD_TOOLS/
 ENV PATH="${PATH}:/opt/sdk/build-tools/$BUILD_TOOLS"
 
 # Docker won't let us write /etc/resolv.conf so we write resolv.conf.override and
