@@ -31,7 +31,13 @@ Build the Android SDK tools:
 rm -rf ./thirdparty/android-sdk-tools/build/
 
 # Build it (substitute the path to NDK on your system):
-ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/28.1.13356709 ./thirdparty/android-sdk-tools/build.sh
+ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/29.0.14206865 ./thirdparty/android-sdk-tools/build.sh
+```
+
+Prepare the Android NDK that gets included in the rootfs:
+
+```bash
+ANDROID_NDK_ROOT=$HOME/Android/Sdk/ndk/29.0.14206865 ./thirdparty/ndk/build.sh
 ```
 
 Build the rootfs:

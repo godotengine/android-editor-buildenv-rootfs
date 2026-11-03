@@ -7,6 +7,7 @@ FROM alvrme/alpine-android:android-${TARGET_SDK}-jdk${JDK_VERSION}-${TARGET_ARCH
 ARG BUILD_TOOLS
 ARG TARGET_SDK
 ARG TARGET_ARCH
+ARG NDK_VERSION
 
 RUN apk add tzdata \
  && mkdir /alt-tmp \
@@ -17,6 +18,14 @@ RUN apk add tzdata \
 COPY android-sdk-tools/$TARGET_ARCH/build-tools /opt/sdk/build-tools/$BUILD_TOOLS/
 ENV PATH="${PATH}:/opt/sdk/build-tools/$BUILD_TOOLS"
 
+# Hack in an NDK using the llvm from alpine.
+RUN apk add --no-cache clang21 lld21 llvm21 make yasm python3 py3-zstandard scons pkgconf
+COPY ndk/payload /opt/sdk/ndk/$NDK_VERSION/
+COPY ndk/install.sh /tmp/ndk-install.sh
+RUN sh /tmp/ndk-install.sh /opt/sdk/ndk/$NDK_VERSION \
+ && rm /tmp/ndk-install.sh
+ENV ANDROID_NDK_ROOT="/opt/sdk/ndk/$NDK_VERSION"
+
 # Docker won't let us write /etc/resolv.conf so we write resolv.conf.override and
 # move it when unpacking the rootfs.
 COPY resolv.conf /etc/resolv.conf.override
@@ -26,5 +35,6 @@ RUN echo "PATH=$PATH" >> /env \
  && echo "HOME=/home/android" >> /env \
  && echo "JAVA_HOME=$JAVA_HOME" >> /env \
  && echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> /env \
- && echo "ANDROID_HOME=$ANDROID_HOME" >> /env
+ && echo "ANDROID_HOME=$ANDROID_HOME" >> /env \
+ && echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT" >> /env
 
